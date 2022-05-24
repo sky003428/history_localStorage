@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+        }
+
+
+        form {
+            margin: 20px auto;
+            text-align: center;
+        }
+
+        .rect {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            position: relative;
+            width: 200px;
+            min-height: 40px;
+            background-color: #ffa;
+            text-align: center;
+            margin-right: 30px;
+            margin-bottom: 10px;
+            overflow-wrap: break-word;
+        }
+
+        .btn {
+            content: url('https://upload.wikimedia.org/wikipedia/commons/7/77/Letter_x.svg');
+            position: absolute;
+            width: 15px;
+           
+            top: 0;
+            right: 0;
+            color: red;
+            transform: translateX(100%) translateY(-40%);
+        }
+
+        .btn:hover {
+            background-color: rgb(255, 198, 198);
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <form name="form1" action="" onsubmit="return false">
+        <input type="text" name="search">
+        <button type="submit" onclick="onSubmit();removeLocal()">Submit</button>
+    </form>
+    <div class="rect">
+
+    </div>
+
+
+    <script>
+        var keyArr = [];
+        const rect = document.querySelector(".rect");
+
+        //建立x按鈕
+        const xBtn = document.createElement("img");
+        xBtn.classList.add("btn");
+        xBtn.innerText = 'x';
+        xBtn.setAttribute('onclick', 'cancelStorage(event)');
+
+  
+        //實作Array方法remove
+        Array.prototype.remove = function (val) {  
+            var index = this.indexOf(val);
+            //Array.indexOf(val)方法查找陣列中有無此val,有的話Array,splice()用indexOf查找的回傳的index
+            if (index > -1) {
+                this.splice(index, 1);
+            }
+        };
+
+
+        (function () {
+            //排序localStorage的key升冪進keyArr
+            for (let i = 0; i < localStorage.length; i++) {
+                const lsKey = localStorage.key(i);
+                keyArr.push(lsKey);
+                keyArr.sort();
+            }
+            //依keyArr建立card
+            for (let i = 0; i < keyArr.length; i++) {
+                const card = document.createElement("div");
+                card.classList.add("card");
+                card.setAttribute('id', 'a' + keyArr[i]);
+                card.setAttribute('onclick', 'fillStr(event)');
+
+                card.innerText = localStorage[keyArr[i]];
+                rect.appendChild(card);
+
+                const btn = xBtn.cloneNode(true);//拷貝dom用clobeNode
+                btn.setAttribute('id', 'x' + keyArr[i]);
+                card.appendChild(btn);
+            }
+
+        })();
+
+        function onSubmit() {
+            const date = Date.now();//取得timestamp
+            const card = document.createElement("div");
+
+            card.classList.add("card");
+            // 用timestamp當card的id
+            card.setAttribute('id', 'a' + date);
+            card.setAttribute('onclick', 'fillStr(event)');
+            card.innerHTML = document.form1.search.value;
+            // 用timestamp當localStorage item的key,input:search為value
+            localStorage.setItem(date, document.form1.search.value);
+            keyArr.push(date);
+
+            rect.appendChild(card);
+
+            const btn = xBtn.cloneNode(true);//拷貝dom用clobeNode
+            btn.setAttribute('id', 'x' + date);
+            card.appendChild(btn);
+        }
+
+        function removeLocal() {
+            for (let i = 6; localStorage.length > i; localStorage.removeItem(keyArr[0])) {
+                const beRemove = document.querySelector('#a' + keyArr[0]);
+                rect.removeChild(beRemove);
+                keyArr.shift();
+            }
+        }
+
+        function fillStr(event) {
+            document.form1.search.value = event.srcElement.innerText;
+        }
+        
+        function cancelStorage(event) {
+            const timeStamp = event.target.id.slice(1)
+            const beRemove = document.querySelector('#a' + timeStamp);
+            event.cancelBubble = true;
+            
+            localStorage.removeItem(timeStamp);
+            rect.removeChild(beRemove);
+            keyArr.remove(timeStamp);
+        }
+
+    </script>
+</body>
+
+</html>
