@@ -11,7 +11,6 @@
             margin: 0;
         }
 
-
         form {
             margin: 20px auto;
             text-align: center;
@@ -37,7 +36,7 @@
             content: url('https://upload.wikimedia.org/wikipedia/commons/7/77/Letter_x.svg');
             position: absolute;
             width: 15px;
-           
+
             top: 0;
             right: 0;
             color: red;
@@ -55,6 +54,7 @@
     <form name="form1" action="" onsubmit="return false">
         <input type="text" name="search">
         <button type="submit" onclick="onSubmit();removeLocal()">Submit</button>
+        <button onclick="clearAll();">ClearAll</button>
     </form>
     <div class="rect">
 
@@ -62,7 +62,7 @@
 
 
     <script>
-        var keyArr = [];
+        var keyArr = [];//排序用的array
         const rect = document.querySelector(".rect");
 
         //建立x按鈕
@@ -71,16 +71,15 @@
         xBtn.innerText = 'x';
         xBtn.setAttribute('onclick', 'cancelStorage(event)');
 
-  
+
         //實作Array方法remove
-        Array.prototype.remove = function (val) {  
+        Array.prototype.remove = function (val) {
             var index = this.indexOf(val);
             //Array.indexOf(val)方法查找陣列中有無此val,有的話Array,splice()用indexOf查找的回傳的index
             if (index > -1) {
                 this.splice(index, 1);
             }
         };
-
 
         (function () {
             //排序localStorage的key升冪進keyArr
@@ -121,7 +120,7 @@
 
             rect.appendChild(card);
 
-            const btn = xBtn.cloneNode(true);//拷貝dom用clobeNode
+            const btn = xBtn.cloneNode(true);//拷貝dom用cloneNode
             btn.setAttribute('id', 'x' + date);
             card.appendChild(btn);
         }
@@ -133,19 +132,27 @@
                 keyArr.shift();
             }
         }
-
+        // 點擊填回去搜尋列
         function fillStr(event) {
             document.form1.search.value = event.srcElement.innerText;
         }
-        
+        // 清除單一card和該localStorage
         function cancelStorage(event) {
-            const timeStamp = event.target.id.slice(1)
+            const timeStamp = event.target.id.slice(1);
             const beRemove = document.querySelector('#a' + timeStamp);
             event.cancelBubble = true;
-            
+
             localStorage.removeItem(timeStamp);
             rect.removeChild(beRemove);
             keyArr.remove(timeStamp);
+        }
+        // 清除所有card和localStorage
+        function clearAll() {
+            const allCard = document.querySelectorAll(".card");
+            for (let i = 0; i < allCard.length; i++) {
+                rect.removeChild(allCard[i]);
+            }
+            localStorage.clear();
         }
 
     </script>
